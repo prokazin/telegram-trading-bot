@@ -7,8 +7,13 @@ import asyncio
 
 # Настройки
 logging.basicConfig(level=logging.INFO)
-API_TOKEN = "ВАШ_ТОКЕН_ОТ_BOTFATHER"
-bot = Bot(token=API_TOKEN)
+from dotenv import load_dotenv
+import os
+load_dotenv()
+API_TOKEN = os.getenv("7839905706:AAFS6v7QPL82yj3w38C05
+MztWKx5dD858mg")
+bot = Bot(token=7839905706:AAFS6v7QPL82yj3w38C05
+MztWKx5dD858mg)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
