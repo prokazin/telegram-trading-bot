@@ -1,0 +1,66 @@
+import logging
+from aiogram import Bot, Dispatcher, executor, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+import random
+import datetime
+import asyncio
+
+# Настройки
+logging.basicConfig(level=logging.INFO)
+API_TOKEN = "ВАШ_ТОКЕН_ОТ_BOTFATHER"
+bot = Bot(token=API_TOKEN)
+storage = MemoryStorage()
+dp = Dispatcher(bot, storage=storage)
+
+# Данные игроков и бизнесов
+users = {}
+businesses = {}
+orders = {}
+market = {"BTC": 50000, "ETH": 3000, "AAPL": 150}
+active_crisis = None
+
+# Кризисы
+CRISES = {
+    "economic_crisis": {
+        "name": "💸 Экономический кризис",
+        "effect": lambda biz: 0.7,
+        "message": "Все бизнесы -30% дохода!"
+    },
+    "cyber_attack": {
+        "name": "💻 Кибератака",
+        "effect": lambda biz: 0.5 if biz["type"] == "it" else 1,
+        "message": "IT-компании -50% дохода!"
+    }
+}
+
+# Команда /start
+@dp.message_handler(commands=['start'])
+async def cmd_start(message: types.Message):
+    user_id = message.from_user.id
+    if user_id not in users:
+        users[user_id] = {"usd": 10000, "portfolio": {"BTC": 0, "ETH": 0, "AAPL": 0}, "businesses": []}
+    await message.answer("Добро пожаловать в игру! Используйте /help.")
+
+# Запуск задач
+async def passive_income():
+    while True:
+        await asyncio.sleep(3600)
+        for biz in businesses.values():
+            user_id = biz["user_id"]
+            income = 100 * biz["level"]
+            users[user_id]["usd"] += income
+
+async def crisis_scheduler():
+    global active_crisis
+    while True:
+        await asyncio.sleep(7200)
+        crisis = random.choice(list(CRISES.values()))
+        active_crisis = crisis
+        await asyncio.sleep(1800)
+        active_crisis = None
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.create_task(passive_income())
+    loop.create_task(crisis_scheduler())
+    executor.start_polling(dp, skip_updates=True)
